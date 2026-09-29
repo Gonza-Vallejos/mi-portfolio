@@ -94,14 +94,18 @@ jobs:
 
   # ----------------------------------------------------------------------------
   # ETAPA 3: COMPILACIÓN FINAL DE PRODUCCIÓN Y DESPLIEGUE A GITHUB PAGES
-  # Se ejecuta tras la sincronización exitosa (o directo si se hace push a 'main').
-  # Re-verifica la compilación en 'main' y publica el sitio resultante a producción.
+  # Se ejecuta ÚNICAMENTE si la etapa 1 y 2 fueron EXITOSAS en dev,
+  # O si fue un push directo a main.
+  # Si la etapa 1 falla en dev, la etapa 3 se CANCELA/OMITE por completo.
   # ----------------------------------------------------------------------------
   build-and-deploy:
     name: 3. Compilación de Producción y Despliegue a Pages
-    needs: [sync-dev-to-main] # Depende del paso de sincronización
-    # Se ejecuta si la sincronización tuvo éxito O si fue omitida (por hacer push directo a main)
-    if: always() && (needs.sync-dev-to-main.result == 'success' || needs.sync-dev-to-main.result == 'skipped') && !cancelled()
+    needs: [validate-dev, sync-dev-to-main] # Depende de ambas etapas
+    if: |
+      always() && !cancelled() && (
+        (needs.validate-dev.result == 'success' && needs.sync-dev-to-main.result == 'success') ||
+        (github.ref == 'refs/heads/main' && needs.validate-dev.result == 'skipped')
+      )
     runs-on: ubuntu-latest
     steps:
       - name: 3.1 Descargar código fuente de la rama main

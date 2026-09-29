@@ -1,4 +1,4 @@
-name: Sync Dev to Main and Deploy Portfolio
+name: CI/CD Portfolio Pipeline
 
 on:
   push:
@@ -17,8 +17,31 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # STEP 1: Validate build on dev branch before allowing merge
+  validate-dev:
+    name: 1. Validate Build on Dev
+    if: github.ref == 'refs/heads/dev'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout dev branch
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test build on dev
+        run: npm run build
+
+  # STEP 2: Merge dev into main ONLY if validate-dev passes
   sync-dev-to-main:
-    name: Sync dev branch to main
+    name: 2. Sync dev branch to main
+    needs: [validate-dev]
     if: github.ref == 'refs/heads/dev'
     runs-on: ubuntu-latest
     steps:
@@ -40,14 +63,17 @@ jobs:
           git merge origin/dev --no-ff -m "ci: auto-sync dev to main"
           git push origin main
 
+  # STEP 3: Re-verify build on main and deploy to Pages
   build-and-deploy:
-    name: Build and Deploy to GitHub Pages
+    name: 3. Production Build & Deploy to Pages
     needs: [sync-dev-to-main]
     if: always() && (needs.sync-dev-to-main.result == 'success' || needs.sync-dev-to-main.result == 'skipped') && !cancelled()
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout main branch
         uses: actions/checkout@v4
+        with:
+          ref: 'main'
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -58,7 +84,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build project
+      - name: Build project for Production
         run: npm run build
 
       - name: Setup Pages

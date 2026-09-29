@@ -45,10 +45,10 @@ function App() {
         cv: "Descargar CV",
       },
       hero: {
-        greeting: "Hola, soy Gonzalo Vallejos Tipo crac",
+        greeting: "Hola, soy Gonzalo Vallejos Tipo crack master e idolo",
         title1: "Construyendo el build",
-        title2: "Cada 5 min",
-        desc: "Se deberia ejecutar cuando le cante supuestamente a alcada 5 minnutos deberia ejecutar con retarrdo de hasta 15 min",
+        title2: "Cambiaso cada 5 segundos",
+        desc: "ultimo",
         btnProjects: "Ver mis proyectos",
         btnContact: "Contactarme",
       },

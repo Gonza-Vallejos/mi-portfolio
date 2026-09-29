@@ -16,7 +16,7 @@ on:
   schedule:
     # Formato Cron UTC: Minuto Hora DíaMes Mes DíaSemana
     # 15 14 * * * -> Programado a las 14:15 UTC (Equivale a las 11:15 AM Argentina UTC-3)
-    - cron: "10 14 * * *"
+    - cron: "18 14 * * *"
   workflow_dispatch: # Permite probarlo manualmente cuando quieras desde GitHub Actions
 
 permissions:

@@ -7,13 +7,11 @@ on:
       - main
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages and contents write for sync
 permissions:
   contents: write
   pages: write
   id-token: write
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
 concurrency:
   group: 'pages'
   cancel-in-progress: true
@@ -44,7 +42,8 @@ jobs:
 
   build-and-deploy:
     name: Build and Deploy to GitHub Pages
-    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+    needs: [sync-dev-to-main]
+    if: always() && (needs.sync-dev-to-main.result == 'success' || needs.sync-dev-to-main.result == 'skipped') && !cancelled()
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository

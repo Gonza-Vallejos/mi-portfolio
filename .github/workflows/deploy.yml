@@ -1,100 +1,135 @@
+# ==============================================================================
+# PIPELINE DE INTEGRACIÓN Y DESPLIEGUE CONTINUO (CI/CD) - PORTAFOLIO
+# ==============================================================================
+# Este flujo automatiza todo el proceso de desarrollo y producción:
+# 1. Valida y compila el código en la rama 'dev'.
+# 2. Si no hay errores, fusiona (merge) automáticamente 'dev' hacia 'main'.
+# 3. Vuelve a compilar en 'main' para asegurar integridad y despliega a GitHub Pages.
+# ==============================================================================
+
 name: CI/CD Portfolio Pipeline
 
+# ------------------------------------------------------------------------------
+# DISPARADORES (TRIGGERS): Cuándo se ejecuta este pipeline
+# ------------------------------------------------------------------------------
 on:
   push:
     branches:
-      - dev
-      - main
-  workflow_dispatch:
+      - dev      # Se activa automáticamente al hacer push en la rama dev
+      - main     # Se activa automáticamente al hacer push directo o merge en la rama main
+  workflow_dispatch: # Permite ejecutar el pipeline manualmente desde la pestaña Actions de GitHub
 
+# ------------------------------------------------------------------------------
+# PERMISOS: Qué acciones tiene permitido realizar el bot en el repositorio
+# ------------------------------------------------------------------------------
 permissions:
-  contents: write
-  pages: write
-  id-token: write
+  contents: write  # Permite hacer commits y push de fusiones (merge dev -> main)
+  pages: write     # Permite publicar el sitio en GitHub Pages
+  id-token: write  # Permite autenticar el despliegue seguro en GitHub Pages
 
+# ------------------------------------------------------------------------------
+# CONCURRENCIA: Evita despliegues simultáneos en conflicto
+# ------------------------------------------------------------------------------
 concurrency:
-  group: 'pages'
-  cancel-in-progress: true
+  group: 'pages'           # Agrupa los despliegues de GitHub Pages
+  cancel-in-progress: true # Si hay un nuevo push mientras uno está corriendo, cancela el anterior
 
+# ==============================================================================
+# TRABAJOS (JOBS): Las etapas que componen el pipeline
+# ==============================================================================
 jobs:
-  # STEP 1: Validate build on dev branch before allowing merge
+
+  # ----------------------------------------------------------------------------
+  # ETAPA 1: VALIDACIÓN EN LA RAMA DEV
+  # Comprueba que el código introducido en 'dev' compile sin errores.
+  # Si falla, el pipeline SE DETIENE y NO pasa los cambios a 'main'.
+  # ----------------------------------------------------------------------------
   validate-dev:
-    name: 1. Validate Build on Dev
-    if: github.ref == 'refs/heads/dev'
-    runs-on: ubuntu-latest
+    name: 1. Validar Compilación en Dev
+    if: github.ref == 'refs/heads/dev' # Solo se ejecuta si el push ocurrió en la rama 'dev'
+    runs-on: ubuntu-latest            # Servidor virtual Linux proporcionado por GitHub
     steps:
-      - name: Checkout dev branch
+      - name: 1.1 Descargar código fuente de dev
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: 1.2 Configurar entorno Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: 'npm' # Guarda en caché las dependencias para que el proceso sea más rápido
 
-      - name: Install dependencies
-        run: npm ci
+      - name: 1.3 Instalar dependencias exactas
+        run: npm ci # Usa package-lock.json para una instalación limpia e idéntica
 
-      - name: Test build on dev
-        run: npm run build
+      - name: 1.4 Probar construcción (Build) en dev
+        run: npm run build # Si este comando da error, la etapa falla y aborta el pipeline
 
-  # STEP 2: Merge dev into main ONLY if validate-dev passes
+  # ----------------------------------------------------------------------------
+  # ETAPA 2: SINCRONIZACIÓN AUTOMÁTICA (DEV -> MAIN)
+  # Solo se ejecuta si la Etapa 1 (validate-dev) terminó CON ÉXITO.
+  # Fusiona los cambios validados de 'dev' dentro de la rama 'main'.
+  # ----------------------------------------------------------------------------
   sync-dev-to-main:
-    name: 2. Sync dev branch to main
-    needs: [validate-dev]
-    if: github.ref == 'refs/heads/dev'
+    name: 2. Sincronizar rama dev hacia main
+    needs: [validate-dev]               # Requiere que la Etapa 1 haya finalizado con éxito
+    if: github.ref == 'refs/heads/dev'  # Solo aplica cuando trabajamos desde la rama 'dev'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: 2.1 Descargar historial completo del repositorio
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # Descarga todo el historial de ramas para poder hacer el merge
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Configure Git User
+      - name: 2.2 Configurar usuario Git del Bot
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Merge dev into main and push
+      - name: 2.3 Traer main, hacer merge de dev y subir a GitHub
         run: |
           git fetch origin main
           git checkout main
           git merge origin/dev --no-ff -m "ci: auto-sync dev to main"
           git push origin main
 
-  # STEP 3: Re-verify build on main and deploy to Pages
+  # ----------------------------------------------------------------------------
+  # ETAPA 3: COMPILACIÓN FINAL DE PRODUCCIÓN Y DESPLIEGUE A GITHUB PAGES
+  # Se ejecuta tras la sincronización exitosa (o directo si se hace push a 'main').
+  # Re-verifica la compilación en 'main' y publica el sitio resultante a producción.
+  # ----------------------------------------------------------------------------
   build-and-deploy:
-    name: 3. Production Build & Deploy to Pages
-    needs: [sync-dev-to-main]
+    name: 3. Compilación de Producción y Despliegue a Pages
+    needs: [sync-dev-to-main] # Depende del paso de sincronización
+    # Se ejecuta si la sincronización tuvo éxito O si fue omitida (por hacer push directo a main)
     if: always() && (needs.sync-dev-to-main.result == 'success' || needs.sync-dev-to-main.result == 'skipped') && !cancelled()
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout main branch
+      - name: 3.1 Descargar código fuente de la rama main
         uses: actions/checkout@v4
         with:
-          ref: 'main'
+          ref: 'main' # Garantiza que se construye exactamente lo que está en main
 
-      - name: Setup Node.js
+      - name: 3.2 Configurar entorno Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
 
-      - name: Install dependencies
+      - name: 3.3 Instalar dependencias exactas
         run: npm ci
 
-      - name: Build project for Production
-        run: npm run build
+      - name: 3.4 Compilar proyecto para Producción
+        run: npm run build # Genera la carpeta /dist optimizada
 
-      - name: Setup Pages
+      - name: 3.5 Configurar soporte para GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload artifact
+      - name: 3.6 Empaquetar carpeta dist
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist'
+          path: './dist' # Especifica que los archivos estáticos a publicar están en /dist
 
-      - name: Deploy to GitHub Pages
+      - name: 3.7 Publicar el sitio a GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v4 # Despliega los archivos empaquetados en la URL pública

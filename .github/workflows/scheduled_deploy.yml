@@ -15,8 +15,8 @@ name: Scheduled Portfolio Deployment
 on:
   schedule:
     # Formato Cron UTC: Minuto Hora DíaMes Mes DíaSemana
-    # 55 13 * * * -> Programado a las 13:55 UTC (Equivale a las 10:55 AM Argentina UTC-3)
-    - cron: '55 13 * * *'
+    # 15 14 * * * -> Programado a las 14:15 UTC (Equivale a las 11:15 AM Argentina UTC-3)
+    - cron: "15 14 * * *"
   workflow_dispatch: # Permite probarlo manualmente cuando quieras desde GitHub Actions
 
 permissions:
@@ -25,7 +25,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: 'pages'
+  group: "pages"
   cancel-in-progress: true
 
 jobs:
@@ -50,7 +50,7 @@ jobs:
           # Cuenta cuántos commits tiene 'dev' por delante de 'main'
           COMMITS_AHEAD=$(git rev-list --count origin/main..origin/dev)
           echo "Commits pendientes en dev: $COMMITS_AHEAD"
-          
+
           if [ "$COMMITS_AHEAD" -eq "0" ]; then
             echo "No hay cambios nuevos en 'dev'. Se omite la ejecución."
             echo "has_changes=false" >> $GITHUB_OUTPUT
@@ -64,7 +64,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: "npm"
 
       - name: 1.4 Instalar dependencias (solo si hay cambios)
         if: steps.check_diff.outputs.has_changes == 'true'
@@ -113,13 +113,13 @@ jobs:
       - name: 3.1 Descargar código fuente de la rama main
         uses: actions/checkout@v4
         with:
-          ref: 'main'
+          ref: "main"
 
       - name: 3.2 Configurar Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: "npm"
 
       - name: 3.3 Instalar dependencias
         run: npm ci
@@ -133,7 +133,7 @@ jobs:
       - name: 3.6 Empaquetar carpeta dist
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist'
+          path: "./dist"
 
       - name: 3.7 Publicar el sitio a GitHub Pages
         id: deployment

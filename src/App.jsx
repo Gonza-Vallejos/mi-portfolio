@@ -45,7 +45,7 @@ function App() {
         cv: "Descargar CV",
       },
       hero: {
-        greeting: "Hola, soy Gonzalo Vallejos",
+        greeting: "Hola, soy Gonzalo Vallejos Tipo crac",
         title1: "Construyendo el build",
         title2: "Cada 5 min",
         desc: "Se deberia ejecutar cuando le cante supuestamente a alcada 5 minnutos deberia ejecutar con retarrdo de hasta 15 min",

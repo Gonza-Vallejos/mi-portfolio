@@ -48,7 +48,7 @@ function App() {
         greeting: "Hola, soy Gonzalo Vallejos",
         title1: "Construyendo experiencias digitales",
         title2: "increíbles",
-        desc: "Soy un prueba de dev a prod apasionado por crear aplicaciones web dinámicas, rápidas y accesibles. Transformo ideas complejas en interfaces simples y hermosas.",
+        desc: "super prueba de dev a prod apasionado por crear aplicaciones web dinámicas, rápidas y accesibles. Transformo ideas complejas en interfaces simples y hermosas.",
         btnProjects: "Ver mis proyectos",
         btnContact: "Contactarme",
       },

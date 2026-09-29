@@ -48,7 +48,7 @@ function App() {
         greeting: "Hola, soy Gonzalo Vallejos",
         title1: "Construyendo experiencias digitales",
         title2: "increíbles",
-        desc: "Se deberia ejecutar a las 10:55aplicaciones web dinámicas, rápidas y accesibles. Transformo ideas complejas en interfaces simples y hermosas.",
+        desc: "Se deberia ejecutar a las 10:55.",
         btnProjects: "Ver mis proyectos",
         btnContact: "Contactarme",
       },

@@ -12,12 +12,13 @@ name: CI/CD Portfolio Pipeline
 # ------------------------------------------------------------------------------
 # DISPARADORES (TRIGGERS): Cuándo se ejecuta este pipeline
 # ------------------------------------------------------------------------------
+# on:
+#   push:
+#     branches:
+#       - dev # Se activa automáticamente al hacer push en la rama dev
+#       - main # Se activa automáticamente al hacer push directo o merge en la rama main
 on:
-  push:
-    branches:
-      - dev # Se activa automáticamente al hacer push en la rama dev
-      - main # Se activa automáticamente al hacer push directo o merge en la rama main
-  workflow_dispatch: # Permite ejecutar el pipeline manualmente desde la pestaña Actions de GitHub
+  workflow_dispatch: # Desactivado temporalmente en push para probar el flujo programado por horario
 
 # ------------------------------------------------------------------------------
 # PERMISOS: Qué acciones tiene permitido realizar el bot en el repositorio

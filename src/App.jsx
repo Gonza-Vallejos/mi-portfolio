@@ -45,7 +45,7 @@ function App() {
         cv: "Descargar CV",
       },
       hero: {
-        greeting: "Hola, soy Gonzalo Vallejos Tipo crac",
+        greeting: "Hola, soy Gonzalo Vallejos Tipo crack master e idolo",
         title1: "Construyendo el build",
         title2: "Cambiaso cada 5 segundos",
         desc: "ultimo",

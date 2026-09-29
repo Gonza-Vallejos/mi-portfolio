@@ -47,8 +47,8 @@ function App() {
       hero: {
         greeting: "Hola, soy Gonzalo Vallejos",
         title1: "Construyendo el build",
-        title2: "increíbles",
-        desc: "Se deberia ejecutar cuando le cante supuestamente a als 11:50 deberia ejecutar con retarrdo de hasta 15 min",
+        title2: "Cada 5 min",
+        desc: "Se deberia ejecutar cuando le cante supuestamente a alcada 5 minnutos deberia ejecutar con retarrdo de hasta 15 min",
         btnProjects: "Ver mis proyectos",
         btnContact: "Contactarme",
       },

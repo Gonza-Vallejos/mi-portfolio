@@ -48,7 +48,7 @@ function App() {
         greeting: "Hola, soy Gonzalo Vallejos",
         title1: "Construyendo experiencias digitales",
         title2: "increíbles",
-        desc: "Se deberia ejecutar cuando le cante ",
+        desc: "Se deberia ejecutar cuando le cante supuestamente a als 11:50 deberia ejecutar con retarrdo de hasta 15 min",
         btnProjects: "Ver mis proyectos",
         btnContact: "Contactarme",
       },
